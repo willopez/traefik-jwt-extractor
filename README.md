@@ -14,14 +14,27 @@ A Traefik middleware plugin that extracts JWT tokens from Supabase authenticatio
 
 ### Static Configuration
 
-Add the plugin to your Traefik static configuration:
+Create a static configuration file:
 
 ```yaml
+# traefik.yml
+api:
+  insecure: true
+
 experimental:
   plugins:
     jwt-extractor:
       moduleName: github.com/willopez/traefik-jwt-extractor
-      version: v1.0.0
+      version: v1.0.0 # Ensure a matching release/tag exists in your repo
+
+entryPoints:
+  web:
+    address: ":80"
+
+providers:
+  docker: {}
+  file:
+    filename: /etc/traefik/dynamic_conf.yml
 ```
 
 ### Dynamic Configuration
@@ -47,30 +60,47 @@ cookieName: "sb-api-auth-token"  # Name of the Supabase auth cookie
 
 ## Example Docker Compose
 
+Create a dynamic configuration file first:
+
+```yaml
+# dynamic_conf.yml
+http:
+  routers:
+    api:
+      rule: "Host(`api.example.com`)"
+      service: "api-service"
+      middlewares:
+        - "supabase-jwt"
+
+  services:
+    api-service:
+      loadBalancer:
+        servers:
+          - url: "http://api:8080"
+
+  middlewares:
+    supabase-jwt:
+      plugin:
+        jwt-extractor:
+          cookieName: "sb-api-auth-token"
+```
+
+Then use both configuration files in your Docker Compose:
+
 ```yaml
 version: '3.9'
 services:
   traefik:
     image: traefik:v2.11
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--entrypoints.web.address=:80"
-      - "--experimental.plugins.jwt-extractor.modulename=github.com/willopez/traefik-jwt-extractor"
-      - "--experimental.plugins.jwt-extractor.version=v1.0.0"
     ports:
       - "80:80"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./traefik.yml:/etc/traefik/traefik.yml:ro
+      - ./dynamic_conf.yml:/etc/traefik/dynamic_conf.yml:ro
 
   api:
     image: your-api-service
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.api.rule=Host(`api.example.com`)"
-      - "traefik.http.routers.api.middlewares=supabase-jwt"
-      - "traefik.http.middlewares.supabase-jwt.plugin.jwt-extractor.cookieName=sb-api-auth-token"
-      - "traefik.http.middlewares.supabase-jwt.plugin.jwt-extractor.secure=true"
 ```
 
 ## How It Works
