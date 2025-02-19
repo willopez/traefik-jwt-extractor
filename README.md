@@ -1,2 +1,2 @@
-# extract-jwt-cookie
-Extracts a JWT access token from a cookie
+# Traefik JWT Extractor
+Traefik middelware to extract a JWT access token from a cookie.
