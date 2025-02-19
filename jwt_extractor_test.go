@@ -43,7 +43,6 @@ func TestNew(t *testing.T) {
 			name: "Valid config",
 			config: &Config{
 				CookieName: "test_cookie",
-				TTL:       60,
 			},
 			wantErr: false,
 		},

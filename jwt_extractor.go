@@ -10,33 +10,15 @@ import (
 )
 
 // Config holds the plugin configuration for JWT extraction.
-// It defines how the cookie containing the JWT should be handled.
 type Config struct {
     // CookieName is the name of the cookie containing the JWT token
-    CookieName string        `json:"cookieName,omitempty"`
-    // TTL defines the cookie time-to-live in minutes
-    TTL        int           `json:"ttl"`
-    // Path sets the cookie path attribute
-    Path       string        `json:"path"`
-    // Domain sets the cookie domain attribute
-    Domain     string        `json:"domain"`
-    // HttpOnly prevents JavaScript access to the cookie
-    HttpOnly   bool          `json:"httpOnly"`
-    // Secure ensures cookie is only sent over HTTPS
-    Secure     bool          `json:"secure"`
-    // SameSite controls the cookie's same-site attribute
-    SameSite   http.SameSite `json:"sameSite"`
+    CookieName string `json:"cookieName,omitempty"`
 }
 
 // CreateConfig creates the default plugin configuration.
 func CreateConfig() *Config {
     return &Config{
         CookieName: "sb-api-auth-token",
-        TTL:        60,
-        Path:       "/",
-        HttpOnly:   true,
-        Secure:     false,
-        SameSite:   http.SameSiteLaxMode,
     }
 }
 

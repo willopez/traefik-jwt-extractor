@@ -35,11 +35,6 @@ http:
       plugin:
         jwt-extractor:
           cookieName: "sb-api-auth-token"
-          path: "/"
-          ttl: 60
-          httpOnly: true
-          secure: true
-          sameSite: 1
 ```
 
 ## Configuration
@@ -48,12 +43,6 @@ Available configuration options with their default values:
 
 ```yaml
 cookieName: "sb-api-auth-token"  # Name of the Supabase auth cookie
-path: "/"                        # Cookie path
-domain: ""                       # Cookie domain
-ttl: 60                         # Time to live in minutes
-httpOnly: true                  # HttpOnly flag
-secure: false                   # Set to true if using HTTPS
-sameSite: 1                     # SameSite policy (1: Lax mode)
 ```
 
 ## Example Docker Compose
