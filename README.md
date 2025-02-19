@@ -88,7 +88,6 @@ http:
 Then use both configuration files in your Docker Compose:
 
 ```yaml
-version: '3.9'
 services:
   traefik:
     image: traefik:v2.11
