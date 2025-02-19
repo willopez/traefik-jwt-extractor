@@ -9,14 +9,22 @@ import (
     "strings"
 )
 
-// Config holds the plugin configuration.
+// Config holds the plugin configuration for JWT extraction.
+// It defines how the cookie containing the JWT should be handled.
 type Config struct {
+    // CookieName is the name of the cookie containing the JWT token
     CookieName string        `json:"cookieName,omitempty"`
+    // TTL defines the cookie time-to-live in minutes
     TTL        int           `json:"ttl"`
+    // Path sets the cookie path attribute
     Path       string        `json:"path"`
+    // Domain sets the cookie domain attribute
     Domain     string        `json:"domain"`
+    // HttpOnly prevents JavaScript access to the cookie
     HttpOnly   bool          `json:"httpOnly"`
+    // Secure ensures cookie is only sent over HTTPS
     Secure     bool          `json:"secure"`
+    // SameSite controls the cookie's same-site attribute
     SameSite   http.SameSite `json:"sameSite"`
 }
 
@@ -32,13 +40,17 @@ func CreateConfig() *Config {
     }
 }
 
+// JwtExtractor implements a Traefik middleware that extracts a JWT token
+// from a cookie and adds it to the Authorization header.
 type JwtExtractor struct {
-    next   http.Handler
-    name   string
-    config *Config
+    next   http.Handler // The next handler in the middleware chain
+    name   string      // Name of the middleware instance
+    config *Config     // Configuration for this middleware
 }
 
-// New creates a new middleware instance
+// New creates and validates a new JWT extractor middleware instance.
+// It ensures the configuration is valid before creating the middleware.
+// Returns an error if the configuration is invalid.
 func New(ctx context.Context, next http.Handler, config *Config, name string) (http.Handler, error) {
     if config.CookieName == "" {
         return nil, fmt.Errorf("cookieName cannot be empty")
@@ -51,12 +63,15 @@ func New(ctx context.Context, next http.Handler, config *Config, name string) (h
     }, nil
 }
 
-// ServeHTTP implements the middleware logic:
-// 1. Extracts the cookie value
-// 2. Removes the "base64-" prefix
-// 3. Decodes the base64 content
-// 4. Parses the JSON payload
-// 5. Sets the Authorization header with the access token
+// ServeHTTP processes the request by:
+// 1. Extracting a cookie containing a base64-encoded JSON payload
+// 2. Decoding the base64 content
+// 3. Parsing the JSON to find an access_token
+// 4. Adding the token to the Authorization header
+//
+// The cookie value must be in the format: "base64-<base64-encoded-json>"
+// The JSON payload must contain an "access_token" field
+// If successful, adds "Authorization: Bearer <token>" header
 func (a *JwtExtractor) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
     // Extract the named cookie from the request
     cookie, err := req.Cookie(a.config.CookieName)
@@ -65,37 +80,38 @@ func (a *JwtExtractor) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
         return
     }
 
-    // Cookie value is expected to be in format: "base64-<base64-encoded-json>"
+    // Extract and validate the base64 prefix
+    // Cookie format must be: base64-<actual-base64-content>
     cookieValue := strings.TrimPrefix(cookie.Value, "base64-")
     if cookieValue == cookie.Value {
         http.Error(rw, "Cookie value does not start with 'base64-'", http.StatusBadRequest)
         return
     }
 
-    // Decode the base64 content to get the JSON payload
+    // Decode and validate the base64 content
     decoded, err := base64.StdEncoding.DecodeString(cookieValue)
     if err != nil {
         http.Error(rw, "Failed to decode cookie value", http.StatusBadRequest)
         return
     }
 
-    // Parse the JSON payload which should contain an access_token field
+    // Parse and validate the JSON structure
     var data map[string]interface{}
     if err := json.Unmarshal(decoded, &data); err != nil {
         http.Error(rw, "Failed to parse JSON", http.StatusBadRequest)
         return
     }
 
-    // Extract and validate the access_token from the JSON payload
+    // Extract and validate the JWT access token
     accessToken, ok := data["access_token"].(string)
     if !ok {
         http.Error(rw, "No valid access_token found", http.StatusUnauthorized)
         return
     }
 
-    // Set the Authorization header with the Bearer token for downstream services
+    // Add the Bearer token to the Authorization header
     req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
 
-    // Continue the middleware chain
+    // Continue processing the request
     a.next.ServeHTTP(rw, req)
 }
