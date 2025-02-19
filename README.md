@@ -110,13 +110,6 @@ services:
 3. Decodes and parses the JSON to find the access token
 4. Adds the token to the Authorization header as `Bearer <token>`
 
-## Security Considerations
-
-- Always use HTTPS in production
-- Enable the `secure` cookie flag in production
-- Consider your SameSite cookie policy needs
-- Ensure your Supabase configuration aligns with these settings
-
 ## Development
 
 To develop or test the plugin locally:
