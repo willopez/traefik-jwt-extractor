@@ -25,7 +25,7 @@ experimental:
   plugins:
     jwt-extractor:
       moduleName: github.com/willopez/traefik-jwt-extractor
-      version: v1.0.0 # Ensure a matching release/tag exists in your repo
+      version: v1.0.0
 
 entryPoints:
   web:
