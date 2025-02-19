@@ -20,7 +20,7 @@ Add the plugin to your Traefik static configuration:
 experimental:
   plugins:
     jwt-extractor:
-      moduleName: github.com/willopez/extract-jwt-cookie
+      moduleName: github.com/willopez/traefik-jwt-extractor
       version: v1.0.0
 ```
 
@@ -67,7 +67,7 @@ services:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--entrypoints.web.address=:80"
-      - "--experimental.plugins.jwt-extractor.modulename=github.com/willopez/extract-jwt-cookie"
+      - "--experimental.plugins.jwt-extractor.modulename=github.com/willopez/traefik-jwt-extractor"
       - "--experimental.plugins.jwt-extractor.version=v1.0.0"
     ports:
       - "80:80"
