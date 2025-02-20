@@ -70,16 +70,6 @@ func (a *JwtExtractor) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	// Decode and validate the base64 content
-	// rw.WriteHeader(http.StatusOK)
-	// rw.Write([]byte(cookieValue))
-	// return
-	// decoded, err := base64.StdEncoding.DecodeString(cookieValue)
-	// if err != nil {
-	//     http.Error(rw, "Failed to decode cookie value!", http.StatusBadRequest)
-	//     return
-	// }
-
 	decoded, err := base64.RawURLEncoding.DecodeString(cookieValue)
 	if err != nil {
 		http.Error(rw, "Failed to decode cookie value: "+err.Error(), http.StatusBadRequest)

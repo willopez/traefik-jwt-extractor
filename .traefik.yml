@@ -8,3 +8,5 @@ summary: Middleware to extract JWT from cookies for Traefik.
 author: willopez
 testData:
   cookieName: "sb-api-auth-token"
+iconPath:
+compatibility: traefik-v3
