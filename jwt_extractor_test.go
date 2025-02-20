@@ -84,7 +84,7 @@ func TestExtractJwtCookie(t *testing.T) {
 			cookieValue: func() string {
 				payload := map[string]string{"access_token": "test-jwt-token"}
 				jsonData, _ := json.Marshal(payload)
-				return "base64-" + base64.StdEncoding.EncodeToString(jsonData)
+				return "base64-" + base64.RawURLEncoding.EncodeToString(jsonData)
 			}(),
 			expectedStatus: http.StatusOK,
 			expectedToken:  "Bearer test-jwt-token",
@@ -107,7 +107,7 @@ func TestExtractJwtCookie(t *testing.T) {
 		{
 			name: "invalid json payload",
 			cookieValue: func() string {
-				return "base64-" + base64.StdEncoding.EncodeToString([]byte("invalid json"))
+				return "base64-" + base64.RawURLEncoding.EncodeToString([]byte("invalid json"))
 			}(),
 			expectedStatus: http.StatusBadRequest,
 		},
@@ -116,7 +116,7 @@ func TestExtractJwtCookie(t *testing.T) {
 			cookieValue: func() string {
 				payload := map[string]string{"other_field": "value"}
 				jsonData, _ := json.Marshal(payload)
-				return "base64-" + base64.StdEncoding.EncodeToString(jsonData)
+				return "base64-" + base64.RawURLEncoding.EncodeToString(jsonData)
 			}(),
 			expectedStatus: http.StatusUnauthorized,
 		},
