@@ -12,6 +12,10 @@ A Traefik middleware plugin that extracts JWT tokens from Supabase authenticatio
 
 ## Installation
 
+### Plugin Catalog (Recommended)
+
+To install this plugin via the Traefik plugin catalog, add the following to your Traefik static configuration:
+
 ### Static Configuration
 
 Create a static configuration file:

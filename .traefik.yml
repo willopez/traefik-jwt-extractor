@@ -1,0 +1,6 @@
+displayName: JWT Cookie Extractor for Supabase
+type: middleware
+import: github.com/willopez/traefik-jwt-extractor
+summary: Extracts JWT tokens from Supabase authentication cookies
+testData:
+  cookieName: sb-api-auth-token
